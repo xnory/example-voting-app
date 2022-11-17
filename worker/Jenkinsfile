@@ -8,6 +8,7 @@ pipeline {
     stages {
         stage("build") {
             steps {
+                echo "app compilation..."
                 dir('worker'){
                     sh 'mvn compile'
                 }
@@ -15,16 +16,18 @@ pipeline {
         }
         stage("test"){
             steps {
+                echo "unit tests..."
                 dir('worker'){
-                    sh 'mvn compile'
+                    sh 'mvn clean test'
                 }
             }
 
         }
         stage("package"){
             steps {
+                echo 'app packaging...'
                 dir('worker'){
-                    sh 'mvn package package -Dskiptests'
+                    sh 'mvn package -Dskiptests'
                 }
             }
         }
@@ -34,6 +37,9 @@ pipeline {
     post{
         always{
             echo "test, build and package completed!"
+            archiveArtifacts artifacts: '**/target/*.jar',
+            fingerprint: true
         }
+
     }
 }
